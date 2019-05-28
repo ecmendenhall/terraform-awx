@@ -1,0 +1,47 @@
+---
+- hosts: tag_type_awx
+  user: ubuntu
+  become: yes
+
+  vars:
+    nodejs_version: "8.x"
+    pip_install_packages:
+      - name: docker
+      - name: docker-compose
+
+  pre_tasks:
+    - name: Update apt cache.
+      apt: update_cache=yes cache_valid_time=600
+      when: ansible_os_family == 'Debian'
+      changed_when: false
+    - name: Write custom inventory
+      copy:
+        src: "awx/files/inventory"
+        dest: "~/inventory"
+
+  roles:
+    - geerlingguy.git
+    - geerlingguy.ansible
+    - geerlingguy.docker
+    - geerlingguy.pip
+    - geerlingguy.nodejs
+    - role: geerlingguy.awx
+      awx_inventory: "~/inventory"
+    - role: jdauphant.ssl-certs
+      ssl_certs_generate_dh_param: yes
+    - role: jdauphant.nginx
+      nginx_configs:
+        ssl:
+          - ssl_certificate_key {{ssl_certs_privkey_path}}
+          - ssl_certificate     {{ssl_certs_cert_path}}
+      nginx_sites:
+        default:
+          - listen 443 ssl
+          - server_name _
+          - |
+            location / {
+              proxy_pass http://localhost:8080;
+            }
+        http:
+          - listen 80
+          - return 301 https://$host$request_uri

@@ -1,0 +1,9 @@
+- src: geerlingguy.git
+- src: geerlingguy.ansible
+- src: geerlingguy.docker
+- src: geerlingguy.pip
+- src: geerlingguy.nodejs
+- src: https://github.com/ecmendenhall/ansible-role-awx
+  name: geerlingguy.awx
+- src: jdauphant.ssl-certs
+- src: jdauphant.nginx

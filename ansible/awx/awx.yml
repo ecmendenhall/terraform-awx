@@ -1,0 +1,24 @@
+---
+- hosts: tag_type_awx
+  user: ubuntu
+  become: yes
+
+  vars:
+    nodejs_version: "8.x"
+    pip_install_packages:
+      - name: docker
+      - name: docker-compose
+
+  pre_tasks:
+    - name: Update apt cache.
+      apt: update_cache=yes cache_valid_time=600
+      when: ansible_os_family == 'Debian'
+      changed_when: false
+
+  roles:
+    - geerlingguy.git
+    - geerlingguy.ansible
+    - geerlingguy.docker
+    - geerlingguy.pip
+    - geerlingguy.nodejs
+    - geerlingguy.awx
